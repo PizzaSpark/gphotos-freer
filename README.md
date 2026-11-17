@@ -40,7 +40,7 @@ app makes Google think you're on one. This tool uses that to:
 ## Install
 
 ```bash
-git clone https://github.com/<you>/gphotos-freer
+git clone https://github.com/PizzaSpark/gphotos-freer
 cd gphotos-freer
 pip install -e .
 ```
