@@ -19,7 +19,7 @@ def adb_path() -> str:
     marker = os.path.join(os.path.expanduser("~"), ".gphotos-freer-sdk")
     roots = []
     if os.path.exists(marker):
-        with open(marker, encoding="utf-8") as f:
+        with open(marker, encoding="utf-8-sig") as f:
             roots.append(f.read().strip())
     roots.append(os.path.expandvars(r"%LOCALAPPDATA%\Android\Sdk"))
     for r in roots:
