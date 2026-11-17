@@ -1,0 +1,11 @@
+work/
+tools/
+*.db
+__pycache__/
+*.zip
+.venv/
+gp_auth.txt
+*.egg-info/
+PLAN.md
+browser-profile/
+check-history.jsonl
