@@ -70,7 +70,11 @@ def cmd_push(args) -> int:
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(prog="gphotos-freer",
                                 description="Move Google Photos items onto free storage.")
-    sub = p.add_subparsers(dest="cmd", required=True)
+    sub = p.add_subparsers(dest="cmd")
+    se = sub.add_parser("setup", help="Guided one-time setup: pick phone or emulator, sign in, check")
+    se.add_argument("--work", default="work")
+    se.set_defaults(func=lambda a: __import__("gphotos_freer.menu", fromlist=["setup"]).setup(a.work))
+
     a = sub.add_parser("audit", help="Find which items in a Takeout use storage")
     a.add_argument("takeout", help="Folder with Takeout .zip files (or one zip)")
     a.add_argument("--out", default="work", help="Where to write reports (default: ./work)")
@@ -116,9 +120,12 @@ def main(argv=None) -> int:
     t.add_argument("--yes", action="store_true", help="Skip the typed confirmation")
     t.set_defaults(func=lambda a: web.trash(a.work, a.batch, a.since_hours, a.yes))
 
-    r = sub.add_parser("run", help="Do everything in chunks: scan, download, upload, check, trash, repeat")
+    r = sub.add_parser("run", help="Do everything: scan, download, upload, check, trash (in rounds or all at once)")
     r.add_argument("--work", default="work")
-    r.add_argument("--chunk-gb", type=float, default=10, help="Max size per round (default 10)")
+    size = r.add_mutually_exclusive_group()
+    size.add_argument("--chunk-gb", type=float, default=10, help="Max size per round (default 10; 0 = everything at once)")
+    size.add_argument("--all", dest="chunk_gb", action="store_const", const=0,
+                      help="Everything in one go, no rounds (needs free disk of about the total size + 20%%)")
     r.add_argument("--which", choices=["all", "shared", "own", "video"], default="all")
     r.add_argument("--rounds", type=int, default=None, help="Stop after this many rounds")
     r.add_argument("--yes", action="store_true", help="Don't ask before trashing each round")
@@ -146,6 +153,9 @@ def main(argv=None) -> int:
     ck.set_defaults(func=lambda a: __import__("gphotos_freer.check", fromlist=["check"]).check(a.work, a.keep))
 
     args = p.parse_args(argv)
+    if not args.cmd:  # plain `gphotos-freer`: pick from a menu
+        from .menu import main_menu
+        return main_menu()
     return args.func(args)
 
 

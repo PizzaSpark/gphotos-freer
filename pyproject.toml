@@ -19,4 +19,4 @@ gphotos-freer = "gphotos_freer.cli:main"
 packages = ["gphotos_freer"]
 
 [tool.setuptools.package-data]
-gphotos_freer = ["*.js"]
+gphotos_freer = ["*.js", "*.ps1"]

@@ -12,7 +12,7 @@ GMS_PKG = "app.revanced.android.gms"
 
 
 def adb_path() -> str:
-    """adb from $ADB, the SDK chosen by scripts/setup-emulator.ps1, the usual SDK folder, or PATH."""
+    """adb from $ADB, the SDK chosen by `gphotos-freer setup`, the usual SDK folder, or PATH."""
     import shutil
     if os.environ.get("ADB"):
         return os.environ["ADB"]

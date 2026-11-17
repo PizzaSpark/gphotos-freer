@@ -29,8 +29,10 @@ app makes Google think you're on one. This tool uses that to:
 - **ExifTool**: `winget install OliverBetz.ExifTool` (or `scoop install exiftool`)
 - **One time only:** an Android device running a **ReVanced-patched Google Photos** + **ReVanced GmsCore**,
   to get your sign-in token. Either:
-  - your own Android phone with USB debugging on, plus [platform-tools (adb)](https://developer.android.com/tools/releases/platform-tools), or
-  - the emulator from `scripts/setup-emulator.ps1` (no Android Studio needed; ~4 GB).
+  - your own Android phone with USB debugging on (setup downloads adb for you, ~10 MB), or
+  - an emulator on your PC (setup downloads it for you, ~4 GB, no Android Studio needed).
+
+  `gphotos-freer setup` asks which one you want and only downloads what that choice needs.
 
   You have to patch Google Photos yourself (this repo doesn't include it): use
   [ReVanced Manager](https://revanced.app) / its CLI with the Google Photos patches, or another
@@ -45,16 +47,23 @@ cd gphotos-freer
 pip install -e .
 ```
 
-That gives you the `gphotos-freer` command.
+That gives you the `gphotos-freer` command. Run it with nothing after it to get a menu where you
+just pick numbers (set up, see what takes space, free up space, upload, check). Everything below
+can also be typed as a command.
 
 ## One-time setup
 
 **1. Get your sign-in token.**
-Connect your phone (USB debugging) or start the emulator, open the patched Photos and sign in. Then:
 
 ```bash
-gphotos-freer auth
+gphotos-freer setup
 ```
+
+It asks whether you're using your phone or an emulator, downloads and installs what's needed,
+then waits while you open the patched Photos and sign in (you type your Google password yourself).
+It also asks for the path to your patched Photos `.apk` (press Enter if it's already installed).
+
+Already have a device ready? Open the patched Photos, sign in, and run `gphotos-freer auth` instead.
 
 It saves the token to `work/gp_auth.txt`. **That file is like a password for your Google account:
 never share it or commit it** (it's already in `.gitignore`). If it doesn't find the token, it
@@ -62,7 +71,7 @@ tells you how to re-trigger the sign-in.
 
 After this, the phone/emulator isn't needed anymore: uploads go straight from your PC.
 
-**2. Sign in to the tool's browser window.**
+**2. Sign in to the tool's browser window.** (`setup` offers to do this and step 3 for you.)
 The first command that needs it opens a **separate Chrome window** with its own profile (not your
 normal Chrome). Sign in to Google there once; it remembers you.
 
@@ -82,10 +91,16 @@ See what's using space (read-only):
 gphotos-freer scan
 ```
 
-Then do it, in rounds of up to 10 GB (so you never need more than ~12 GB free disk):
+Then do it all in one go (needs free disk of about the total size + 20%):
 
 ```bash
-gphotos-freer run --chunk-gb 10
+gphotos-freer run --all
+```
+
+Or in rounds of up to 10 GB, so you never need more than ~12 GB free disk (this is the default):
+
+```bash
+gphotos-freer run
 ```
 
 Each round: download → upload free → check every new copy arrived → show you a review page and ask
@@ -95,7 +110,7 @@ Stop any time; run it again to carry on.
 When it's done, **empty Trash in Google Photos**, and check
 [one.google.com/storage](https://one.google.com/storage) a few hours later.
 
-Options: `--chunk-gb 5` (smaller rounds), `--rounds 1` (just one round),
+Options: `--all` (one round with everything), `--chunk-gb 5` (smaller rounds), `--rounds 1` (just one round),
 `--which shared|own|video` (only that kind), `--yes` (don't ask before trashing each round).
 
 ## Upload new photos and videos for free
@@ -116,6 +131,8 @@ continue if uploads would count toward your storage. Results are logged in `work
 
 | Command | What it does |
 |---|---|
+| `setup` | Guided one-time setup (phone or emulator, sign-in, check) |
+| `auth` | Just capture the sign-in token from an already signed-in device |
 | `scan` | List what takes up space (`work/space-scan.json`) |
 | `download --batch NAME` | Download originals of what takes up space |
 | `trash --batch NAME` | Verify new copies, then trash the old ones (with review) |
